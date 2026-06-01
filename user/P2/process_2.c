@@ -1,24 +1,15 @@
 #include "../../lib/stdio.h"
 #include "../../lib/syscalls.h"
 
-void process_2(void)
+int process_2(void)
 {
-    char c = 'a';
+    int32_t r1 = sys_write(9, "X\n", 2); 
+    int32_t r2 = sys_write(1, (void *)0xFFFFFFFF, 8); 
+    int32_t r3 = sys_write(1, "[B] ok\n", 7);
 
-    while (1)
-    {
-        PRINT("----From P2: %c\n", c);
-
-        c++;
-        if (c > 'z')
-        {
-            c = 'a';
-        }
-
-        //yield();
-
-        // Small delay to prevent overwhelming UART
-        for (volatile int i = 0; i < 95000000; i++)
-            ;
-    }
+    if (r1 < 0 && r2 < 0 && r3 == 7) 
+        sys_exit(0); 
+    else 
+        sys_exit(1); 
+    return 0; 
 }

@@ -60,7 +60,9 @@ $AS $AFLAGS -o bin/processes.o ../OS/processes.s
 
 echo "  Compiling OS..."
 $CC -c $CFLAGS -o bin/kernel.o ../OS/kernel.c
-$CC -c $CFLAGS -o bin/scheduler.o ../OS/scheduler.c
+$CC -c $CFLAGS -o bin/dispatcher.o ../OS/dispatcher.c
+$CC -c $CFLAGS -o bin/scheduler.o ../OS/scheduler/scheduler.c
+$CC -c $CFLAGS -o bin/queue.o ../OS/scheduler/queue.c
 
 echo "  Compiling drivers..."
 $CC -c $CFLAGS -o bin/intc.o ../drivers/intc.c
@@ -70,7 +72,6 @@ $CC -c $CFLAGS -o bin/uart.o ../drivers/uart.c
 echo "  Compiling libraries..."
 $CC -c $CFLAGS -o bin/stdio.o ../lib/stdio.c
 $CC -c $CFLAGS -o bin/stdlib.o ../lib/stdlib.c
-$CC -c $CFLAGS -o bin/syscalls.o ../lib/syscalls.c
 
 echo "  Compiling debugger..."
 $CC -c $CFLAGS -o bin/logs.o ../debugger/logs.c
@@ -80,13 +81,14 @@ $LD $LDFLAGS -o bin/os.elf \
     bin/root.o \
     bin/processes.o \
     bin/kernel.o \
+    bin/dispatcher.o \
     bin/scheduler.o \
+    bin/queue.o \
     bin/intc.o \
     bin/timer.o \
     bin/uart.o \
     bin/stdio.o \
     bin/stdlib.o \
-    bin/syscalls.o \
     bin/logs.o
 
 echo "  Converting ELF to binary..."

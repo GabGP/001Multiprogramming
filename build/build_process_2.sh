@@ -54,14 +54,11 @@ $CC -c $CFLAGS -o bin/stdio.o ./../lib/stdio.c
 echo "  Compiling stdlib..."
 $CC -c $CFLAGS -o bin/stdlib.o ./../lib/stdlib.c
 
-echo "  Compiling syscalls..."
-$CC -c $CFLAGS -o bin/syscalls.o ./../lib/syscalls.c
-
 echo "  Compiling main.c..."
 $CC -c $CFLAGS -o bin/process_2.o ../user/P2/process_2.c
 
 echo "  Linking object files..."
-$LD $LDFLAGS -o bin/process_2.elf bin/root.o bin/uart.o bin/stdio.o bin/stdlib.o bin/syscalls.o bin/process_2.o
+$LD $LDFLAGS -o bin/process_2.elf bin/root.o bin/uart.o bin/stdio.o bin/stdlib.o bin/process_2.o
 
 echo "  Converting ELF to binary..."
 $OBJCOPY -O binary bin/process_2.elf bin/process_2.bin

@@ -1,24 +1,25 @@
 #include "../../lib/stdio.h"
 #include "../../lib/syscalls.h"
 
-void process_1(void)
-{
-    int n = 0;
+int process_1(void) { 
+    const char *msg = "[A] tick\n"; 
 
-    while (1)
-    {
-        PRINT("----From P1: %d\n", n);
+    for (int i = 0; i < 20; i++) {
 
-        n++;
-        if (n == 10)
-        {
-            n = 0;
+        int32_t n = sys_write(1, msg, 9); 
+
+        if (n < 0) { 
+            /* optional */ 
         }
-
-        //yield();
 
         // Small delay to prevent overwhelming UART
         for (volatile int i = 0; i < 95000000; i++)
             ;
+
+        sys_yield(); 
     }
-}
+
+    sys_exit(0);
+
+    return 0; 
+} 

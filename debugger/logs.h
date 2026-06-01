@@ -2,7 +2,7 @@
 #define LOGS_H
 
 #include "../lib/stdio.h"
-#include "../OS/scheduler.h"
+#include "../OS/scheduler/scheduler.h"
 
 // ============================================================================
 // Debugging Functions
