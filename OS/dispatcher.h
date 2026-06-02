@@ -4,6 +4,7 @@
 #include "../lib/stdio.h"
 #include "../lib/syscalls.h"
 #include "../drivers/timer.h"
+#include "../drivers/uart.h"
 #include "scheduler/scheduler.h"
 
 // ============================================================================
@@ -13,12 +14,12 @@
 #define MAX_WRITE_LEN 256
 
 // Return Codes
-enum {
-    SUCCESS_RC = 0,
-    INVALID_SYSCALL_RC = -1,    // Invalid syscall ID
-    INVALID_ARGUMENT_RC = -2,   // Invalid descriptor or argument
-    INVALID_USR_PTR_RC = -3     // Invalid user pointer or protection violation
-};
+typedef enum {
+    RC_SUCCESS = 0,
+    RC_INVALID_SYSCALL = -1,    // Invalid syscall ID
+    RC_INVALID_ARGUMENT = -2,   // Invalid descriptor or argument
+    RC_INVALID_USR_PTR = -3     // Invalid user pointer or protection violation
+} ReturnCode;
 
 void syscall_dispatcher(void);
 void irq_dispatcher(void);

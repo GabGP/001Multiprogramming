@@ -80,7 +80,9 @@ void os_process(void)
             c = 'A';
         }
 
-        sys_yield();
+        // Small delay to prevent overwhelming UART
+        for (volatile int i = 0; i < 95000000; i++)
+            ;
 
     }
 }

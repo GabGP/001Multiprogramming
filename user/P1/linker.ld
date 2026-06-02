@@ -2,7 +2,7 @@ ENTRY(_start)
 
 MEMORY
 {
-    ram : ORIGIN = MEM_ADDR, LENGTH = 64K
+    ram : ORIGIN = P1_ADDR, LENGTH = 64K
 }
 
 SECTIONS

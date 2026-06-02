@@ -21,8 +21,8 @@ void pcb_init(unsigned int pid)
         pcb[pid].regs[i] = 0x0;
 
     pcb[pid].syscall_id = 0;
-    pcb[pid].fault_type = NO_FAULT;
-    pcb[pid].termination_reason = NORMAL_EXIT;
+    pcb[pid].fault_type = FAULT_NONE;
+    pcb[pid].termination_reason = EXIT_NORMAL;
     pcb[pid].exit_code = 0;
 
     update_process_state(pid, PROCESS_NEW);
@@ -87,21 +87,27 @@ static int is_runnable_process(unsigned int pid)
 Queue ready_queue;
 unsigned int current_process = 0;
 unsigned int next_process = 0;
-unsigned int quantum = 10;
+unsigned int quantum = DEFAULT_QUANTUM;
 
 // Function to initialize the scheduler and ready queue
 void scheduler_init(void)
 {
     system_queue_init();
     init_queue(&ready_queue);
+    quantum = DEFAULT_QUANTUM;
 }
 
 // Fuction to choose the next process to run (round-robin scheduler)
-void schedule(void)
+// - is_yield: 0, normal scheduling
+// - is_yield: 1, voluntary yield
+void schedule(unsigned int is_yield)
 {
-    if (quantum == 0 || pcb[current_process].state == PROCESS_TERMINATED)
+    if (quantum == 0 || pcb[current_process].state == PROCESS_TERMINATED || is_yield)
     {
-        PRINT("...\n");
+        if (is_yield)
+            PRINT(".\n");
+        else
+            PRINT("...\n");
 
         if (!is_empty(&ready_queue))
         {
@@ -117,32 +123,10 @@ void schedule(void)
             update_process_state(current_process, PROCESS_RUNNING);
         }
 
-        quantum = 10;
+        quantum = DEFAULT_QUANTUM;
     }
     else
     {
         quantum--;
     }
-}
-
-// Function to voluntarily yield the CPU to another user process
-void schedule_yield(void)
-{
-    PRINT(".\n");
-
-    if (!is_empty(&ready_queue))
-    {
-        // Put the current process back in line, if its running
-        if (is_runnable_process(current_process))
-        {
-            update_process_state(current_process, PROCESS_READY);
-            enqueue(&ready_queue, current_process);
-        }
-
-        // Get the next process
-        current_process = dequeue(&ready_queue);
-        update_process_state(current_process, PROCESS_RUNNING);
-    }
-
-    quantum = 10;
 }

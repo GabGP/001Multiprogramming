@@ -32,19 +32,21 @@ typedef enum
 
 typedef enum
 {
-    NO_FAULT = 0,
-    INVALID_MAPPING_FAULT = 1, // PAGE FAULT
-    PRIVILEGE_VIOLATION_FAULT = 2,
-    ALIGMENT_ERROR_FAULT = 3,
-    PERMISSION_FAULT = 4,
-    UNKNOWN_FAULT = 5
+    FAULT_NONE = 0,
+    FAULT_ALIGMENT_ERROR = 1, // ALIGNMENT FAULT
+    FAULT_ACCESS_FLAG = 2,
+    FAULT_INVALID_MAPPING = 3, // TRANSLATION FAULT
+    FAULT_PRIV_VIOLATION = 4, // PRIVILEGE VIOLATION / DOMAIN FAULT
+    FAULT_PERMISSION = 5,
+    FAULT_SYNC_EXT_ABORT = 6, // SYNCHRONOUS EXTERNAL ABORT
+    FAULT_UNKNOWN = -1
 } FaultType;
 
 typedef enum
 {
-    NORMAL_EXIT = 0,
-    SYSCALL_EXIT = 1,
-    FAULT_EXIT = 2
+    EXIT_NORMAL = 0,
+    EXIT_SYSCALL = 1,
+    EXIT_FAULT = 2
 } TerminationReason;
 
 typedef struct
@@ -61,8 +63,8 @@ typedef struct
     unsigned int state;     // NEW, READY, RUNNING, WAITING, SUSPENDED, TERMINATED
 
     unsigned int syscall_id;            // SYS_YIELD, SYS_EXIT, SYS_WRITE
-    unsigned int fault_type;            // NO_FAULT, INVALID_MAPPING_FAULT, PRIVILEGE_VIOLATION_FAULT, ALIGMENT_ERROR_FAULT, PERMISSION_FAULT, UNKNOWN_FAULT
-    unsigned int termination_reason;    // NORMAL_EXIT, SYSCALL_EXIT, FAULT_EXIT
+    int fault_type;                     // FAULT_NONE, FAULT_INVALID_MAPPING, FAULT_PRIV_VIOLATION, FAULT_ALIGMENT_ERROR, FAULT_PERMISSION, FAULT_SYNC_EXT_ABORT, FAULT_UNKNOWN
+    unsigned int termination_reason;    // EXIT_NORMAL, EXIT_SYSCALL, EXIT_FAULT
     int exit_code;                      // 0 >= normal exit, < 0 for error codes
 } PCB;
 
@@ -80,16 +82,14 @@ void update_process_state(unsigned int pid, ProcessState new_state);
 // Scheduler
 // ============================================================================
 
+#define DEFAULT_QUANTUM 10
+
 extern Queue ready_queue;
 extern unsigned int current_process;
 extern unsigned int next_process;
 extern unsigned int quantum;
 
 void scheduler_init(void);
-void schedule(void);
-void schedule_yield(void);
-
-void save_context(void);
-void restore_context(void);
+void schedule(unsigned int is_yield);
 
 #endif // SCHEDULER_H

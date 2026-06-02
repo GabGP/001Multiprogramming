@@ -45,7 +45,7 @@ esac
 echo "  Cleaning up previous build files..."
 rm -f bin/*.o bin/os.elf bin/os.bin
 
-# Compilar primer P1 y P2 para que ya esten en memoria
+# Compile processes first so we can embed them in the OS
 TARGET=$TARGET ./build_process_1.sh
 TARGET=$TARGET ./build_process_2.sh
 

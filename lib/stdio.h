@@ -7,7 +7,7 @@
 #include <stdarg.h> // For dynamic argument handling
  
 #define FLOAT_SCALE 100
-#define BUF_SIZE 32
+#define BUF_SIZE 256
  
 // ============================================================================
 // Standard I/O Functions

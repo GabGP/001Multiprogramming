@@ -90,12 +90,24 @@ vector_table:
     b fiq_handler        @ 0x1C: FIQ (Fast Interrupt Request)
 
 reset_handler:
+    // Set stack pointer for FIQs
+    msr CPSR, #0xD1 @ FIQ mode (0b10001) + IRQ/FIQ disabled
+    ldr sp, =_stack_top
+
     // Set stack pointer for IRQs
     msr CPSR, #0xD2 @ IRQ mode (0b10010) + IRQ/FIQ disabled
     ldr sp, =_stack_top
 
     // Set stack pointer for SWI/SVC mode
     msr CPSR, #0xD3 @ SVC mode (0b10011) + IRQ/FIQ disabled
+    ldr sp, =_stack_top
+
+    // Set stack pointer for ABT mode
+    msr CPSR, #0xD7 @ ABT mode (0b10111) + IRQ/FIQ disabled
+    ldr sp, =_stack_top
+
+    // Set stack pointer for UND mode
+    msr CPSR, #0xDB @ UND mode (0b11011) + IRQ/FIQ disabled
     ldr sp, =_stack_top
 
     // Set CPU to System mode
@@ -109,10 +121,39 @@ reset_handler:
     ldr r1, =__bss_end__
     mov r2, #0
 clear_bss:
-    cmp r0, r1          @ While the current address is less than the end of .bss
+    cmp r0, r1          @ While the current address hasn't reached the end of .bss
     it lt
     strlt r2, [r0], #4  @ Clear current location and go to the next (increment by 4 bytes)
     blt clear_bss
+
+    // Relocate Process 1 (LMA to VMA)
+    ldr r0, =__p1_lma_start
+    ldr r1, =__p1_vma_start
+    ldr r2, =__p1_vma_end
+relocate_p1:
+    cmp r1, r2
+    bge p1_relocation_done
+    ldr r3, [r0], #4
+    str r3, [r1], #4
+    b relocate_p1
+
+p1_relocation_done:
+    // Relocate Process 2 (LMA to VMA)
+    ldr r0, =__p2_lma_start
+    ldr r1, =__p2_vma_start
+    ldr r2, =__p2_vma_end
+relocate_p2:
+    cmp r1, r2
+    bge p2_relocation_done
+    ldr r3, [r0], #4
+    str r3, [r1], #4
+    b relocate_p2
+
+p2_relocation_done:
+    // Enable strict alignment checking
+    mrc p15, 0, r0, c1, c0, 0   @ System Control Register (SCTLR)
+    orr r0, r0, #0x2            @ Enable Strict Alignment (A bit)
+    mcr p15, 0, r0, c1, c0, 0
 
     // Place a memory barrier
     dsb @ Data Synchronization Barrier
@@ -148,13 +189,13 @@ swi_handler:
 
 prefetch_handler:
     SAVE_CONTEXT 4
-    mov r0, #1          @ fault_type
+    mrc p15, 0, r0, c5, c0, 1   @ IFSR
     bl fault_dispatcher
     RESTORE_CONTEXT 4
 
 data_handler:
     SAVE_CONTEXT 8
-    mov r0, #2          @ fault_type
+    mrc p15, 0, r0, c5, c0, 0   @ DFSR
     bl fault_dispatcher
     RESTORE_CONTEXT 8
 

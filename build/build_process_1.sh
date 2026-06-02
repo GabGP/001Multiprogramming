@@ -24,12 +24,12 @@ OBJCOPY="arm-none-eabi-objcopy"
 case "$TARGET" in
   versatilepb)
     CFLAGS="-mcpu=cortex-a8 -mfpu=neon -mfloat-abi=hard -Wall -nostdlib -nostartfiles -ffreestanding -DPLATFORM_VERSATILEPB"
-    LDFLAGS="-T ../user/P1/linker.ld --defsym=MEM_ADDR=0x00100000"
+    LDFLAGS="-T ../user/P1/linker.ld --defsym=P1_ADDR=0x00100000"
     RUN_CMD="qemu-system-arm -M versatilepb -cpu cortex-a8 -nographic -kernel build/bin/process_1.elf"
     ;;
   beaglebone)
     CFLAGS="-mcpu=cortex-a8 -mfpu=neon -mfloat-abi=hard -DPLATFORM_BEAGLEBONE"
-    LDFLAGS="-T ../user/P1/linker.ld --defsym=MEM_ADDR=0x82100000"
+    LDFLAGS="-T ../user/P1/linker.ld --defsym=P1_ADDR=0x82100000"
     RUN_CMD=""  # none, since we will run on real hardware
     ;;
   *)
@@ -54,7 +54,7 @@ $CC -c $CFLAGS -o bin/stdio.o ./../lib/stdio.c
 echo "  Compiling stdlib..."
 $CC -c $CFLAGS -o bin/stdlib.o ./../lib/stdlib.c
 
-echo "  Compiling main.c..."
+echo "  Compiling process_1.c..."
 $CC -c $CFLAGS -o bin/process_1.o ../user/P1/process_1.c
 
 echo "  Linking object files..."
