@@ -20,7 +20,7 @@ This project implements a basic multiprogramming operating system capable of per
 - `make qemu` VersatilePB - Qemu
 - `make qemu-debug` VersatilePB - Qemu with GDB
 
-Note: This program is meant to be ran on Linux and requires gcc-arm-none-aebi , optionally gdb-multiarch and qemu.
+**Note:** This program is meant to be ran on Linux and requires gcc-arm-none-aebi , optionally gdb-multiarch and qemu.
 
 ### To run on BeagleBone Black
 
@@ -59,7 +59,35 @@ Helpful debugging options
 | `MODE_SWITCH USER_TO_KERNEL pid=<n> reason=fault type=<type>` | Exception Path (User → Kernel) |
 | `MODE_SWITCH KERNEL_TO_USER pid=<m> reason=fault_recovery` | Exception Path (Kernel → User) |
 
-### Process States
+### Scheduler Behaviour
+
+The scheduler enforces a Round-Robin scheduling policy. It manages CPU time allocation by monitoring a `quantum` and handling process transitions based on three main triggers:
+
+1. **Quantum Expiry**: When the `quantum` reaches zero, the current process is preempted to allow another process to run.
+2. **Process Termination**: If the current process enters the `PROCESS_TERMINATED` state, a new process is immediately scheduled.
+3. **Voluntary Yield**: A process can choose to give up its remaining time via the `SYS_YIELD` system call.
+
+If any of these conditions are met, the scheduler moves to the next process in the ready queue and resets the `quantum`. When idling, the process OS will continue running.
+
+### Process Control Block (PCB)
+
+The PCB stores the context and metadata for each process, ensuring that the system can save and restore its state during context switches.
+
+| Variable | Description |
+| :--- | :--- |
+| `pid` | Unique numeric identifier for the process. |
+| `state` | Current lifecycle state (e.g., READY, RUNNING, WAITING). |
+| `regs[13]` | Array storing the general-purpose registers (R0 to R12). |
+| `pc` | Program Counter; the address of the next instruction to be executed. |
+| `sp` | Stack Pointer; points to the top of the process's private stack. |
+| `lr` | Link Register; stores the return address for function calls and exceptions. |
+| `spsr` | Saved Processor Status Register; used to restore the CPU mode and flags. |
+| `syscall_id` | Stores the ID of the current or most recent system call. |
+| `fault_type` | Records the type of hardware exception encountered by the process. |
+| `termination_reason` | Indicates why a process ended (Normal exit, Syscall, or Fault). |
+| `exit_code` | The status code returned to the kernel upon termination. |
+
+#### Process States
 
 The kernel manages the lifecycle of each task through a set of defined states stored in the PCB.
 
@@ -101,7 +129,7 @@ When a hardware exception or processor fault occurs, the `fault_dispatcher` cate
 
 | Fault Classification / Type | Value | Outcome | Comment |
 | :--- | :--- | :--- | :--- |
-| `FAULT_NONE` | 0 | **-** | - |
+| `FAULT_NONE` | 0 | **-** | Default Value |
 | `FAULT_ALIGNMENT_ERROR` | 1 | **Terminate** | MMU |
 | `FAULT_ACCESS_FLAG` | 2 | **Terminate** | MMU |
 | `FAULT_INVALID_MAPPING` | 3 | **Terminate** | Translation Fault / MMU |
@@ -109,8 +137,11 @@ When a hardware exception or processor fault occurs, the `fault_dispatcher` cate
 | `FAULT_PERMISSION` | 5 | **Terminate** | MMU |
 | `FAULT_SYNC_EXT_ABORT` | 6 | **Terminate** | Synchronous External Abort |
 | `FAULT_UNKNOWN` | -1 | **Terminate** | - |
+| `FAULT_UND_INST` | -2 | **Terminate** | Undefined Instruction |
+
 
 **Recovery Strategy**  
+
 The current kernel policy is **Fail-Stop** for individual processes. If any fault is detected:
 
 1. The current process is marked as `PROCESS_TERMINATED`.
@@ -121,12 +152,12 @@ The current kernel policy is **Fail-Stop** for individual processes. If any faul
 **Notes:**
 
 - Test on BeagleBone Black, otherwise the exceptions might not trigger on qemu.
-- MMU faults require the MMU to be enabled.
+- MMU faults require the MMU to be enabled and set up.
 
 ### Termination Reason
 
 | Termination Reason | Value | Description |
 | :--- | :--- | :--- |
-| `EXIT_NORMAL` | 0 | Process terminated normally. |
+| `EXIT_NORMAL` | 0 | Process terminated normally. Default Value. |
 | `EXIT_SYSCALL` | 1 | Process terminated after a syscall (successful or failed). |
 | `EXIT_FAULT` | 2 | Process terminated after a fault. |

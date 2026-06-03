@@ -21,8 +21,8 @@ int process_2(void)
         
         // Read unaligned address in valid region
         volatile unsigned int *unaligned_ptr = (volatile unsigned int *)(P2_ADDR + 3);
-        unsigned int val = *unaligned_ptr; 
-        (void)val;
+        unsigned int value = *unaligned_ptr;
+        (void)value;
     }
     else if (TEST == 2) 
     {
@@ -30,8 +30,20 @@ int process_2(void)
         
         // Read address in unmapped region
         volatile unsigned int *unmapped_ptr = (volatile unsigned int *)0x30000000;
-        unsigned int val = *unmapped_ptr; 
-        (void)val;
+        unsigned int value = *unmapped_ptr;
+        (void)value;
+    }
+    else if (TEST == 3) 
+    {
+        sys_write(1, "[C] Testing Privilege Escalation\n", 33);
+        
+        // Attempt to access privileged system register from user mode
+        unsigned int sctlr;
+        asm volatile (
+            "MRC p15, 0, %0, c1, c0, 0" // Read SCTLR
+            : "=r" (sctlr)
+        );
+        (void)sctlr;
     }
 
     sys_write(1, "[C] ERROR: Fault was not caught!\n", 33);

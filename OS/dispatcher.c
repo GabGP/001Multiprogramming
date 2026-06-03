@@ -102,7 +102,11 @@ void fault_dispatcher(unsigned int fault_status_reg)
     int fault_type = FAULT_UNKNOWN;
 
     //  Decoding fault status (section/page)
-    if (fault_status == 0x01) 
+    if (fault_status == 0x00) 
+    {
+        fault_type = FAULT_UND_INST;
+    }
+    else if (fault_status == 0x01) 
     {
         fault_type = FAULT_ALIGMENT_ERROR;
     }

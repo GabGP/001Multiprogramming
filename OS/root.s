@@ -178,9 +178,10 @@ hang:
     b hang
 
 undefined_handler:
-    bl log_registers
-    bl log_pcb
-    b hang
+    SAVE_CONTEXT 4
+    mov r0, #0
+    bl fault_dispatcher
+    RESTORE_CONTEXT 4
 
 swi_handler:
     SAVE_CONTEXT 0

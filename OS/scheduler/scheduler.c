@@ -97,7 +97,7 @@ void scheduler_init(void)
     quantum = DEFAULT_QUANTUM;
 }
 
-// Fuction to choose the next process to run (round-robin scheduler)
+// Function to choose the next process to run (round-robin scheduler)
 // - is_yield: 0, normal scheduling
 // - is_yield: 1, voluntary yield
 void schedule(unsigned int is_yield)
