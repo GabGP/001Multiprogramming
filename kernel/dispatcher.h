@@ -18,7 +18,8 @@ typedef enum {
     RC_SUCCESS = 0,
     RC_INVALID_SYSCALL = -1,    // Invalid syscall ID
     RC_INVALID_ARGUMENT = -2,   // Invalid descriptor or argument
-    RC_INVALID_USR_PTR = -3     // Invalid user pointer or protection violation
+    RC_INVALID_USR_PTR = -3,    // Invalid user pointer or protection violation
+    RC_INVALID_ORIGIN = -4      // Invalid syscall origin (triggered by kernel)
 } ReturnCode;
 
 void syscall_dispatcher(void);

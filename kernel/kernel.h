@@ -16,6 +16,7 @@
 extern unsigned int process_count;
 
 void create_process(unsigned int pid);
-void os_process(void);
+void kernel_init(void);
+extern void init_launch(void);
 
 #endif // KERNEL_H

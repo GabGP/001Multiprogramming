@@ -98,10 +98,6 @@ reset_handler:
     msr CPSR, #0xD2 @ IRQ mode (0b10010) + IRQ/FIQ disabled
     ldr sp, =_stack_top
 
-    // Set stack pointer for SWI/SVC mode
-    msr CPSR, #0xD3 @ SVC mode (0b10011) + IRQ/FIQ disabled
-    ldr sp, =_stack_top
-
     // Set stack pointer for ABT mode
     msr CPSR, #0xD7 @ ABT mode (0b10111) + IRQ/FIQ disabled
     ldr sp, =_stack_top
@@ -110,10 +106,14 @@ reset_handler:
     msr CPSR, #0xDB @ UND mode (0b11011) + IRQ/FIQ disabled
     ldr sp, =_stack_top
 
-    // Set CPU to System mode
+    // Set stack pointer for SYS mode
     msr CPSR, #0xDF @ SYS mode (0b11111) + IRQ/FIQ disabled
+    ldr sp, =_stack_top
 
-    // Set the initial stack pointer for the OS
+    // Set CPU to SVC mode
+    msr CPSR, #0xD3 @ SVC mode (0b10011) + IRQ/FIQ disabled
+
+    // Set the initial stack pointer for the kernel
     ldr sp, =_stack_top
 
     // Clear the .bss section
@@ -176,6 +176,33 @@ p2_relocation_done:
     // If the kernel ever returns, loop forever
 hang:
     b hang
+
+.globl init_launch
+init_launch:
+    // Get the OS PCB
+    ldr r0, =pcb
+    mov r2, #1          @ PID: 1 (OS)
+    mov r3, #92         @ sizeof(PCB) = 23 * 4
+    mul r4, r3, r2
+    add r5, r0, r4
+
+    // Get the OS SPSR/PC
+    ldr r6, [r5, #64]
+    msr SPSR, r6
+    ldr lr, [r5, #60]
+
+    // Switch to SYS mode to get SP/LR
+    msr CPSR, #0x1F
+    ldr sp, [r5, #52]
+    ldr lr, [r5, #56]
+    
+    // Switch back to SVC mode
+    msr CPSR, #0x13
+
+    // Get general purpose registers
+    ldm r5, {r0-r12}
+    
+    subs pc, lr, #0
 
 .globl enable_mmu
 enable_mmu:

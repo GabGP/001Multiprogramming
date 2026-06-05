@@ -13,7 +13,7 @@ void create_process(unsigned int pid)
 }
 
 // Function to initialize the OS and create processes
-void os_init(void)
+static void os_init(void)
 {
     unsigned int process_count = 1;
 
@@ -27,10 +27,9 @@ void os_init(void)
     create_process(process_count++); // User process 2
     PRINT("OK\n\n");
 
-    current_process = 0;
-    update_process_state(current_process, PROCESS_RUNNING);
-
-    PRINT("MODE_SWITCH KERNEL_TO_USER pid=%d reason=initial_launch\n\n", current_process);
+    schedule(0);
+    PRINT("MODE_SWITCH KERNEL_TO_USER pid=%d reason=initial_launch\n", current_process);
+    init_launch();
 }
 
 // Function to initialize the kernel

@@ -131,10 +131,15 @@ The system uses registers **R0-R3** for system call interfacing. **R0** is used 
 | `RC_INVALID_SYSCALL` | -1 | The requested Syscall ID is not recognized. |
 | `RC_INVALID_ARGUMENT` | -2 | Provided arguments are invalid. (FD != 1or 0 > Length > 256) |
 | `RC_INVALID_USR_PTR` | -3 | Memory access violation (Buffer outside process boundary). |
+| `RC_INVALID_ORIGIN` | -4 | Invalid syscall origin (Triggered by kernel). |
 
 #### Unknown Syscall Behavior
 
 If a process requests an unknown Syscall ID, the kernel will immediately transition the process to the `PROCESS_TERMINATED` state, set the return register to `RC_INVALID_SYSCALL`, and trigger the scheduler to pick the next available task.
+
+#### Invalid Syscall Origin Behavior
+
+If a process triggers a syscall while on kernel mode, then the same procedure as unknown system behavior follows, except that the return code is set to `RC_INVALID_ORIGIN`. This is because  syscalls are meant to be triggered while on user mode, and if someone with kernel privileges triggers it, then it means something went wrong.
 
 ### Fault Handling Policy
 
@@ -180,5 +185,5 @@ The current kernel policy is **Fail-Stop** for individual processes. If any faul
 | Termination Reason | Value | Description |
 | :--- | :--- | :--- |
 | `EXIT_NORMAL` | 0 | Process terminated normally. Default Value. |
-| `EXIT_SYSCALL` | 1 | Process terminated after a syscall (successful or failed). |
+| `EXIT_SYSCALL` | 1 | Process terminated after a syscall (Successful or Failed). |
 | `EXIT_FAULT` | 2 | Process terminated after a fault. |

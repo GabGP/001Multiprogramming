@@ -45,6 +45,12 @@ int process_2(void)
         );
         (void)sctlr;
     }
+    else if (TEST == 4)
+    {
+        sys_write(1, "[C] Testing Debug Event\n", 24);
+
+        asm volatile ("bkpt #0");
+    }
 
     sys_write(1, "[C] ERROR: Fault was not caught!\n", 33);
     sys_exit(1);
