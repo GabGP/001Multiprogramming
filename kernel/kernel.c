@@ -12,15 +12,11 @@ void create_process(unsigned int pid)
     update_process_state(pid, PROCESS_READY);
 }
 
-// ============================================================================
-// Main Functions
-// ============================================================================
-
-unsigned int process_count = 0;
-
 // Function to initialize the OS and create processes
 void os_init(void)
 {
+    unsigned int process_count = 1;
+
     PRINT("Starting OS ... ");
     scheduler_init();
     create_process(process_count++); // OS process
@@ -33,7 +29,8 @@ void os_init(void)
 
     current_process = 0;
     update_process_state(current_process, PROCESS_RUNNING);
-    PRINT("MODE_SWITCH KERNEL_TO_USER pid=%d reason=initial_launch\n", current_process);
+
+    PRINT("MODE_SWITCH KERNEL_TO_USER pid=%d reason=initial_launch\n\n", current_process);
 }
 
 // Function to initialize the kernel
@@ -45,6 +42,11 @@ void kernel_init(void)
     PRINT(" - Gabriel Garcia - 17001171\n");
 
     PRINT("\nStarting Kernel ...\n\n");
+
+    // Initialize the MPU to set up memory regions and permissions
+    PRINT("Initializing MPU ... ");
+    mpu_init();
+    PRINT("OK\n");
 
     // Disable the watchdog timer to prevent resets
     PRINT("Disabling watchdog ... ");
@@ -63,26 +65,4 @@ void kernel_init(void)
 
     // Initialize the OS and create processes
     os_init();
-}
-
-// Function of the OS process
-void os_process(void)
-{
-    char c = 'A';
-
-    while (1)
-    {
-        PRINT("----From OS: %c\n", c);
-
-        c++;
-        if (c > 'Z')
-        {
-            c = 'A';
-        }
-
-        // Small delay to prevent overwhelming UART
-        for (volatile int i = 0; i < 95000000; i++)
-            ;
-
-    }
 }

@@ -110,6 +110,14 @@ void fault_dispatcher(unsigned int fault_status_reg)
     {
         fault_type = FAULT_ALIGMENT_ERROR;
     }
+    else if (fault_status == 0x02) 
+    {
+        fault_type = FAULT_DEBUG_EVENT;
+    }
+    else if (fault_status == 0x04) 
+    {
+        fault_type = FAULT_INST_CACHE_MAINT;
+    }
     else if (fault_status == 0x03 || fault_status == 0x06) 
     {
         fault_type = FAULT_ACCESS_FLAG;
@@ -126,9 +134,37 @@ void fault_dispatcher(unsigned int fault_status_reg)
     {
         fault_type = FAULT_PRIV_VIOLATION;
     }
+    else if (fault_status == 0x0C || fault_status == 0x0E) 
+    {
+        fault_type = FAULT_TRANS_TBL_WALK_SEA; 
+    }
     else if (fault_status == 0x0D || fault_status == 0x0F) 
     {
-        fault_type = FAULT_PERMISSION; 
+        fault_type = FAULT_PERMISSION;
+    }
+    else if (fault_status == 0x14) 
+    {
+        fault_type = FAULT_IMP_DEF_LD;
+    }
+    else if (fault_status == 0x16) 
+    {
+        fault_type = FAULT_ASYNC_EXT_ABORT;
+    }
+    else if (fault_status == 0x18) 
+    {
+        fault_type = FAULT_MEM_ACCESS_APE;
+    }
+    else if (fault_status == 0x19) 
+    {
+        fault_type = FAULT_MEM_ACCESS_SPE;
+    }
+    else if (fault_status == 0x1A) 
+    {
+        fault_type = FAULT_IMP_DEF_CA;
+    }
+    else if (fault_status == 0x1C || fault_status == 0x1E) 
+    {
+        fault_type = FAULT_TRANS_TBL_WALK_SPE; 
     }
 
     PRINT("MODE_SWITCH USER_TO_KERNEL pid=%d reason=fault type=%d\n", current_process, fault_type);

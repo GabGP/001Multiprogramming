@@ -22,7 +22,7 @@ case "$TARGET" in
   versatilepb)
     AFLAGS="-g"
     CFLAGS="-g -O0 -mcpu=cortex-a8 -mfpu=neon -mfloat-abi=hard -Wall -nostdlib -nostartfiles -ffreestanding -DPLATFORM_VERSATILEPB"
-    LDFLAGS="-T ../OS/linker.ld --defsym=MEM_ADDR=0x00000000 --defsym=P1_ADDR=0x00100000 --defsym=P2_ADDR=0x00200000"
+    LDFLAGS="-T ../kernel/linker.ld --defsym=MEM_ADDR=0x00000000 --defsym=OS_ADDR=0x00100000 --defsym=P1_ADDR=0x00200000 --defsym=P2_ADDR=0x00300000"
     if [ "$DEBUG" = "1" ]; then
       RUN_CMD="qemu-system-arm -M versatilepb -cpu cortex-a8 -nographic -kernel bin/os.elf -S -gdb tcp::3333"
     else
@@ -32,7 +32,7 @@ case "$TARGET" in
   beaglebone)
     AFLAGS=""
     CFLAGS="-mcpu=cortex-a8 -mfpu=neon -mfloat-abi=hard -DPLATFORM_BEAGLEBONE"
-    LDFLAGS="-T ../OS/linker.ld --defsym=MEM_ADDR=0x82000000 --defsym=P1_ADDR=0x82100000 --defsym=P2_ADDR=0x82200000"
+    LDFLAGS="-T ../kernel/linker.ld --defsym=MEM_ADDR=0x82000000 --defsym=OS_ADDR=0x82100000 --defsym=P1_ADDR=0x82200000 --defsym=P2_ADDR=0x82300000"
     RUN_CMD=""  # none, since we will run on real hardware
     ;;
   *)
@@ -48,21 +48,22 @@ rm -f bin/*.o bin/os.elf bin/os.bin
 # Compile processes first so we can embed them in the OS
 TARGET=$TARGET ./build_process_1.sh
 TARGET=$TARGET ./build_process_2.sh
+TARGET=$TARGET ./build_process_os.sh
 
 echo ""
 echo "Building OS..."
 
 echo "  Assembling root.s..."
-$AS $AFLAGS -o bin/root.o ../OS/root.s
+$AS $AFLAGS -o bin/root.o ../kernel/root.s
 
-echo "  Assembling processes.s (embedding P1 and P2 binaries)..."
-$AS $AFLAGS -o bin/processes.o ../OS/processes.s
+echo "  Assembling processes.s (embedding process binaries)..."
+$AS $AFLAGS -o bin/processes.o ../kernel/processes.s
 
-echo "  Compiling OS..."
-$CC -c $CFLAGS -o bin/kernel.o ../OS/kernel.c
-$CC -c $CFLAGS -o bin/dispatcher.o ../OS/dispatcher.c
-$CC -c $CFLAGS -o bin/scheduler.o ../OS/scheduler/scheduler.c
-$CC -c $CFLAGS -o bin/queue.o ../OS/scheduler/queue.c
+echo "  Compiling kernel..."
+$CC -c $CFLAGS -o bin/kernel.o ../kernel/kernel.c
+$CC -c $CFLAGS -o bin/dispatcher.o ../kernel/dispatcher.c
+$CC -c $CFLAGS -o bin/scheduler.o ../kernel/scheduler/scheduler.c
+$CC -c $CFLAGS -o bin/queue.o ../kernel/scheduler/queue.c
 
 echo "  Compiling drivers..."
 $CC -c $CFLAGS -o bin/intc.o ../drivers/intc.c

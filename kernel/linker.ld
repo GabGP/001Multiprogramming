@@ -35,7 +35,17 @@ SECTIONS
 
     /* PROCESS IMAGES WITH LMA COMPRESSION */
 
-    .p1_image P1_ADDR : AT(ALIGN(LOADADDR(.bss) + SIZEOF(.bss), 4))
+    .os_image OS_ADDR : AT(ALIGN(LOADADDR(.bss) + SIZEOF(.bss), 4))
+    {
+        . = ALIGN(4);
+        __os_vma_start = .;
+        *(.os_image)
+        . = ALIGN(4);
+        __os_vma_end = .;
+    }
+    __os_lma_start = LOADADDR(.os_image);
+
+    .p1_image P1_ADDR : AT(ALIGN(LOADADDR(.os_image) + SIZEOF(.os_image), 4))
     {
         . = ALIGN(4);
         __p1_vma_start = .;

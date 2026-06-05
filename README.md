@@ -10,6 +10,7 @@ This project implements a basic multiprogramming operating system capable of per
 - **PCB Context Management**: Utilizes a structured Process Control Block to save and restore the full CPU state during context switches, allowing seamless multitasking between independent tasks.
 - **Millisecond Timer Support**: Integrated hardware timer drivers for VersatilePB and BeagleBone Black that generate periodic interrupts, serving as the fundamental timing mechanism for the scheduler's preemption.
 - **System Call Interface (ABI)**: Implements a secure gateway for user-space processes to interact with the kernel, supporting essential operations like process yielding, termination, and UART-based console output.
+- **Memory Protection Unit (MPU)**: Configures the Memory Management Unit (MMU) using an identity map to function as an MPU. It enforces hardware-level isolation between Kernel and User memory regions, preventing unauthorized access to critical system resources.
 - **Hardware Fault Isolation**: Includes a fault dispatcher that detects and handles various ARM exceptions, protecting system stability by terminating erroneous processes while keeping the kernel running.
 
 ## How to Run?
@@ -67,7 +68,19 @@ The scheduler enforces a Round-Robin scheduling policy. It manages CPU time allo
 2. **Process Termination**: If the current process enters the `PROCESS_TERMINATED` state, a new process is immediately scheduled.
 3. **Voluntary Yield**: A process can choose to give up its remaining time via the `SYS_YIELD` system call.
 
-If any of these conditions are met, the scheduler moves to the next process in the ready queue and resets the `quantum`. When idling, the process OS will continue running.
+If any of these conditions are met, the scheduler moves to the next process in the ready queue and resets the `quantum`. When idling, the OS process will continue running.
+
+### Process Memory Map
+
+Each process is allocated a dedicated memory region starting at a base address determined by the platform and its PID. The entry point for each process is at the beginning of its allocated 1MB region.
+
+| PID | Process Name   | Memory Start Address (VersatilePB) | Memory Start Address (BeagleBone Black) |
+| :-- | :------------- | :--------------------------------- | :-------------------------------------- |
+| 0   | Kernel         | `0x00000000`                       | `0x82000000`                            |
+| 1   | OS Process     | `0x00100000`                       | `0x82100000`                            |
+| 2   | User Process 1 | `0x00200000`                       | `0x82200000`                            |
+| 3   | User Process 2 | `0x00300000`                       | `0x82300000`                            |
+| ... | ...            | ...                                | ...                                     |
 
 ### Process Control Block (PCB)
 
@@ -136,9 +149,17 @@ When a hardware exception or processor fault occurs, the `fault_dispatcher` cate
 | `FAULT_PRIV_VIOLATION` | 4 | **Terminate** | Domain Fault / MMU |
 | `FAULT_PERMISSION` | 5 | **Terminate** | MMU |
 | `FAULT_SYNC_EXT_ABORT` | 6 | **Terminate** | Synchronous External Abort |
+| `FAULT_ASYNC_EXT_ABORT` | 7 | **Terminate** | Asynchronous External Abort |
+| `FAULT_TRANS_TBL_WALK_SEA` | 8 | **Terminate** | Translation Table Walk (Sync External Abort) |
+| `FAULT_TRANS_TBL_WALK_SPE` | 9 | **Terminate** | Translation Table Walk (Sync Parity Error) |
+| `FAULT_MEM_ACCESS_SPE` | 10 | **Terminate** | Memory Access (Synchronous Parity Error) |
+| `FAULT_MEM_ACCESS_APE` | 11 | **Terminate** | Memory Access (Asynchronous Parity Error) |
+| `FAULT_DEBUG_EVENT` | 12 | **Terminate** | - |
+| `FAULT_INST_CACHE_MAINT` | 13 | **Terminate** | Instruction Cache Maintenance |
+| `FAULT_IMP_DEF_LD` | 14 | **Terminate** | Implementation Defined (Lockdown) |
+| `FAULT_IMP_DEF_CA` | 15 | **Terminate** | Implementation Defined (Coprocessor Abort) |
 | `FAULT_UNKNOWN` | -1 | **Terminate** | - |
 | `FAULT_UND_INST` | -2 | **Terminate** | Undefined Instruction |
-
 
 **Recovery Strategy**  
 

@@ -24,12 +24,12 @@ OBJCOPY="arm-none-eabi-objcopy"
 case "$TARGET" in
   versatilepb)
     CFLAGS="-mcpu=cortex-a8 -mfpu=neon -mfloat-abi=hard -Wall -nostdlib -nostartfiles -ffreestanding -DPLATFORM_VERSATILEPB"
-    LDFLAGS="-T ../user/P2/linker.ld --defsym=P2_ADDR=0x00200000"
+    LDFLAGS="-T ../user/P2/linker.ld --defsym=P2_ADDR=0x00300000"
     RUN_CMD="qemu-system-arm -M versatilepb -cpu cortex-a8 -nographic -kernel build/bin/process_2.elf"
     ;;
   beaglebone)
     CFLAGS="-mcpu=cortex-a8 -mfpu=neon -mfloat-abi=hard -DPLATFORM_BEAGLEBONE"
-    LDFLAGS="-T ../user/P2/linker.ld --defsym=P2_ADDR=0x82200000"
+    LDFLAGS="-T ../user/P2/linker.ld --defsym=P2_ADDR=0x82300000"
     RUN_CMD=""  # none, since we will run on real hardware
     ;;
   *)
@@ -48,10 +48,8 @@ $AS -o bin/root.o ../user/P2/root.s
 echo "  Compiling uart driver..."
 $CC -c $CFLAGS -o bin/uart.o ./../drivers/uart.c
 
-echo "  Compiling library..."
+echo "  Compiling libraries..."
 $CC -c $CFLAGS -o bin/stdio.o ./../lib/stdio.c
-
-echo "  Compiling stdlib..."
 $CC -c $CFLAGS -o bin/stdlib.o ./../lib/stdlib.c
 
 echo "  Compiling process_2.c..."

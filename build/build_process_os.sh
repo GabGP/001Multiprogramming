@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Build Script for Process 1
+# Build Script for OS Process
 # Exit immediately if a command exits with a non-zero status
 set -e
 
@@ -10,7 +10,7 @@ cd "$SCRIPT_DIR"
 mkdir -p bin # Ensure bin directory exists for output files
 
 echo
-echo "Building Process 1..."
+echo "Building Process OS..."
 
 TARGET="${TARGET:-versatilepb}"   # default target
 echo "  Selected TARGET=${TARGET}"
@@ -24,12 +24,12 @@ OBJCOPY="arm-none-eabi-objcopy"
 case "$TARGET" in
   versatilepb)
     CFLAGS="-mcpu=cortex-a8 -mfpu=neon -mfloat-abi=hard -Wall -nostdlib -nostartfiles -ffreestanding -DPLATFORM_VERSATILEPB"
-    LDFLAGS="-T ../user/P1/linker.ld --defsym=P1_ADDR=0x00200000"
-    RUN_CMD="qemu-system-arm -M versatilepb -cpu cortex-a8 -nographic -kernel build/bin/process_1.elf"
+    LDFLAGS="-T ../system/linker.ld --defsym=OS_ADDR=0x00100000"
+    RUN_CMD="qemu-system-arm -M versatilepb -cpu cortex-a8 -nographic -kernel build/bin/process_os.elf"
     ;;
   beaglebone)
     CFLAGS="-mcpu=cortex-a8 -mfpu=neon -mfloat-abi=hard -DPLATFORM_BEAGLEBONE"
-    LDFLAGS="-T ../user/P1/linker.ld --defsym=P1_ADDR=0x82200000"
+    LDFLAGS="-T ../system/linker.ld --defsym=OS_ADDR=0x82100000"
     RUN_CMD=""  # none, since we will run on real hardware
     ;;
   *)
@@ -40,10 +40,10 @@ esac
 
 # Remove previous compiled objects and binaries
 echo "  Cleaning up previous build files..."
-rm -f bin/*.o bin/process_1.elf bin/process_1.bin
+rm -f bin/*.o bin/process_os.elf bin/process_os.bin
 
 echo "  Assembling root.s..."
-$AS -o bin/root.o ../user/P1/root.s
+$AS -o bin/root.o ../system/root.s
 
 echo "  Compiling uart driver..."
 $CC -c $CFLAGS -o bin/uart.o ./../drivers/uart.c
@@ -52,14 +52,14 @@ echo "  Compiling libraries..."
 $CC -c $CFLAGS -o bin/stdio.o ./../lib/stdio.c
 $CC -c $CFLAGS -o bin/stdlib.o ./../lib/stdlib.c
 
-echo "  Compiling process_1.c..."
-$CC -c $CFLAGS -o bin/process_1.o ../user/P1/process_1.c
+echo "  Compiling process_os.c..."
+$CC -c $CFLAGS -o bin/process_os.o ../system/process_os.c
 
 echo "  Linking object files..."
-$LD $LDFLAGS -o bin/process_1.elf bin/root.o bin/uart.o bin/stdio.o bin/stdlib.o bin/process_1.o
+$LD $LDFLAGS -o bin/process_os.elf bin/root.o bin/uart.o bin/stdio.o bin/stdlib.o bin/process_os.o
 
 echo "  Converting ELF to binary..."
-$OBJCOPY -O binary bin/process_1.elf bin/process_1.bin
+$OBJCOPY -O binary bin/process_os.elf bin/process_os.bin
 
 if [ "$TARGET" = "versatilepb" ]; then
   echo "  Build complete for VerstatilePB. Run with: $RUN_CMD"

@@ -102,7 +102,7 @@ void scheduler_init(void)
 // - is_yield: 1, voluntary yield
 void schedule(unsigned int is_yield)
 {
-    if (quantum == 0 || pcb[current_process].state == PROCESS_TERMINATED || is_yield)
+    if (quantum == 0 || pcb[current_process].state == PROCESS_TERMINATED || is_yield || current_process == 0)
     {
         if (is_yield)
             PRINT(".\n");
@@ -111,8 +111,8 @@ void schedule(unsigned int is_yield)
 
         if (!is_empty(&ready_queue))
         {
-            // Put the current process back in line, if its running
-            if (is_runnable_process(current_process))
+            // Put the current process back in line, if runnable. Except PID 0
+            if (is_runnable_process(current_process) && current_process != 0)
             {
                 update_process_state(current_process, PROCESS_READY);
                 enqueue(&ready_queue, current_process);

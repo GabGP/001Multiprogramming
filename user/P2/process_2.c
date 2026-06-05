@@ -26,11 +26,11 @@ int process_2(void)
     }
     else if (TEST == 2) 
     {
-        sys_write(1, "[C] Testing Sync External Abort\n", 32);
+        sys_write(1, "[C] Testing Permission Fault\n", 32);
         
-        // Read address in unmapped region
-        volatile unsigned int *unmapped_ptr = (volatile unsigned int *)0x30000000;
-        unsigned int value = *unmapped_ptr;
+        // Read address without permissions
+        volatile unsigned int *unallowed_ptr = (volatile unsigned int *)0x30000000;
+        unsigned int value = *unallowed_ptr;
         (void)value;
     }
     else if (TEST == 3) 
