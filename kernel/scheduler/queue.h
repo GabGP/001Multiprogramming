@@ -22,6 +22,8 @@ typedef struct
     Node *back;     // Tail
 } Queue;
 
+extern Queue ready_queue;
+
 void system_queue_init(void);
 void init_queue(Queue *q);
 

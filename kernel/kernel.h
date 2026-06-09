@@ -5,6 +5,7 @@
 #include "../drivers/intc.h"
 #include "../drivers/timer.h"
 #include "scheduler/scheduler.h"
+#include "process.h"
 #include "./mpu.h"
 
 // ============================================================================
@@ -15,7 +16,6 @@
 
 extern unsigned int process_count;
 
-void create_process(unsigned int pid);
 void kernel_init(void);
 extern void init_launch(void);
 

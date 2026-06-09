@@ -4,14 +4,6 @@
 // Kernel Functions
 // ============================================================================
 
-// Function to create a process
-void create_process(unsigned int pid)
-{
-    pcb_init(pid);
-    setup_process_stack(pid);
-    update_process_state(pid, PROCESS_READY);
-}
-
 // Function to initialize the OS and create processes
 static void os_init(void)
 {

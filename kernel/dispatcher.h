@@ -26,4 +26,6 @@ void syscall_dispatcher(void);
 void irq_dispatcher(void);
 void fault_dispatcher(unsigned int fault_type);
 
-#endif
+extern void kernel_panic(void);
+
+#endif // DISPATCHER_H

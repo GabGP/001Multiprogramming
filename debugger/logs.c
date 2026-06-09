@@ -7,7 +7,7 @@
 // Function to log the current pcb information
 void log_pcb(void)
 {
-    const char* state_names[] = { "NEW", "READY", "RUNNING", "WAITING", "SUSPENDED", "TERMINATED" };
+    const char *state_names[] = {"NEW", "READY", "RUNNING", "WAITING", "SUSPENDED", "TERMINATED"};
 
     PRINT("\n=== PCB of PID %d ===\n", pcb[current_process].pid);
     PRINT("State: %s, PC: 0x%x, SP: 0x%x\n", state_names[pcb[current_process].state], pcb[current_process].pc, pcb[current_process].sp);
@@ -26,7 +26,14 @@ void log_pcb(void)
     PRINT("R%d: 0x%x\n", 11, pcb[current_process].regs[11]);
     PRINT("R%d: 0x%x\n", 12, pcb[current_process].regs[12]);
 
-    PRINT("LR: 0x%x, SPSR: 0x%x\n\n", pcb[current_process].lr, pcb[current_process].spsr);
+    PRINT("LR: 0x%x, SPSR: 0x%x\n", pcb[current_process].lr, pcb[current_process].spsr);
+
+    PRINT("Syscall ID: %d, Fault Type: %d, Termination Reason: %d, Exit Code: %d\n",
+          pcb[current_process].syscall_id,
+          pcb[current_process].fault_type,
+          pcb[current_process].termination_reason,
+          pcb[current_process].exit_code
+        );
 }
 
 // Function to log the current registers

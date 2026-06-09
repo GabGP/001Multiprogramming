@@ -1,10 +1,72 @@
 .section .text
 .syntax unified
 .code 32
-.globl _start
 
+.globl _start
 _start:
 b reset_handler
+
+.globl enable_mmu
+enable_mmu:
+    // Indicate the base address of the page table to the MMU
+    ldr r1, =page_table
+    mcr p15, 0, r1, c2, c0, 0   @ Write to TTBR0 (Translation Table Base Register)
+
+    // Set domain 0 to client mode
+    mov r0, #0x1
+    mcr p15, 0, r0, c3, c0, 0   @ Write to DACR (Domain Access Control Register)
+    
+    // Set up SCTLR (System Control Register) to enable the MMU and Strict Alignment
+    mrc p15, 0, r2, c1, c0, 0
+    orr r2, r2, #0x1            @ Enable MMU (M bit)
+    orr r2, r2, #0x2            @ Enable Strict Alignment (A bit)
+    mcr p15, 0, r2, c1, c0, 0
+
+    dsb @ Data Synchronization Barrier
+    isb @ Instruction Synchronization Barrier
+    bx lr
+
+.globl init_launch
+init_launch:
+    // Get the OS PCB
+    ldr r0, =pcb
+    mov r2, #1          @ PID: 1 (OS)
+    mov r3, #92         @ sizeof(PCB) = 23 * 4
+    mul r4, r3, r2
+    add r5, r0, r4
+
+    // Get the OS SPSR/PC
+    ldr r6, [r5, #64]
+    msr SPSR, r6
+    ldr lr, [r5, #60]
+
+    // Switch to SYS mode to get SP/LR
+    mrs r6, CPSR
+    orr r7, r6, #0x1F
+    msr CPSR, r7
+    ldr sp, [r5, #52]
+    ldr lr, [r5, #56]
+    
+    // Switch back to SVC mode
+    msr CPSR, r6
+
+    // Get general purpose registers
+    ldm r5, {r0-r12}
+    
+    subs pc, lr, #0
+
+.globl kernel_panic
+kernel_panic:
+    // Turn off interrupts
+    mrs r6, CPSR
+    orr r7, r6, #0x80
+    msr CPSR, r7
+
+    // Kernel Panic: Current Process PCB + !
+    mov r0, #33
+    bl uart_putc
+    bl log_pcb
+    b hang
 
 .macro SAVE_CONTEXT pc_offset
     stmfd sp!, {r0-r12}
@@ -176,53 +238,6 @@ p2_relocation_done:
     // If the kernel ever returns, loop forever
 hang:
     b hang
-
-.globl init_launch
-init_launch:
-    // Get the OS PCB
-    ldr r0, =pcb
-    mov r2, #1          @ PID: 1 (OS)
-    mov r3, #92         @ sizeof(PCB) = 23 * 4
-    mul r4, r3, r2
-    add r5, r0, r4
-
-    // Get the OS SPSR/PC
-    ldr r6, [r5, #64]
-    msr SPSR, r6
-    ldr lr, [r5, #60]
-
-    // Switch to SYS mode to get SP/LR
-    msr CPSR, #0x1F
-    ldr sp, [r5, #52]
-    ldr lr, [r5, #56]
-    
-    // Switch back to SVC mode
-    msr CPSR, #0x13
-
-    // Get general purpose registers
-    ldm r5, {r0-r12}
-    
-    subs pc, lr, #0
-
-.globl enable_mmu
-enable_mmu:
-    // Indicate the base address of the page table to the MMU
-    ldr r1, =page_table
-    mcr p15, 0, r1, c2, c0, 0   @ Write to TTBR0 (Translation Table Base Register)
-
-    // Set domain 0 to client mode
-    mov r0, #0x1
-    mcr p15, 0, r0, c3, c0, 0   @ Write to DACR (Domain Access Control Register)
-    
-    // Set up SCTLR (System Control Register) to enable the MMU and Strict Alignment
-    mrc p15, 0, r2, c1, c0, 0
-    orr r2, r2, #0x1            @ Enable MMU (M bit)
-    orr r2, r2, #0x2            @ Enable Strict Alignment (A bit)
-    mcr p15, 0, r2, c1, c0, 0
-
-    dsb @ Data Synchronization Barrier
-    isb @ Instruction Synchronization Barrier
-    bx lr
 
 undefined_handler:
     SAVE_CONTEXT 4

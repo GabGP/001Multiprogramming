@@ -50,6 +50,7 @@ Helpful debugging options
 
 | Output | Event |
 | :--- | :--- |
+| `!` | Kernel Panic |
 | `.` | Yield Scheduling |
 | `...` | Normal Scheduling |
 | `MODE_SWITCH KERNEL_TO_USER pid=<first> reason=initial_launch` | Initial Boot Path (Kernel → User) |
@@ -155,8 +156,8 @@ When a hardware exception or processor fault occurs, the `fault_dispatcher` cate
 | `FAULT_PERMISSION` | 5 | **Terminate** | MMU |
 | `FAULT_SYNC_EXT_ABORT` | 6 | **Terminate** | Synchronous External Abort |
 | `FAULT_ASYNC_EXT_ABORT` | 7 | **Terminate** | Asynchronous External Abort |
-| `FAULT_TRANS_TBL_WALK_SEA` | 8 | **Terminate** | Translation Table Walk (Sync External Abort) |
-| `FAULT_TRANS_TBL_WALK_SPE` | 9 | **Terminate** | Translation Table Walk (Sync Parity Error) |
+| `FAULT_TTB_WALK_SEA` | 8 | **Terminate** | Translation Table Walk (Sync External Abort) |
+| `FAULT_TTB_WALK_SPE` | 9 | **Terminate** | Translation Table Walk (Sync Parity Error) |
 | `FAULT_MEM_ACCESS_SPE` | 10 | **Terminate** | Memory Access (Synchronous Parity Error) |
 | `FAULT_MEM_ACCESS_APE` | 11 | **Terminate** | Memory Access (Asynchronous Parity Error) |
 | `FAULT_DEBUG_EVENT` | 12 | **Terminate** | - |
