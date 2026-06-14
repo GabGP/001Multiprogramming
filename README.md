@@ -6,12 +6,14 @@ This project implements a basic multiprogramming operating system capable of per
 
 ## Features
 
-- **Round-Robin Scheduling**: Implements a preemptive scheduling algorithm that assigns a fixed time unit (quantum) to each process in the ready queue, ensuring fair CPU distribution and preventing process starvation.
-- **PCB Context Management**: Utilizes a structured Process Control Block to save and restore the full CPU state during context switches, allowing seamless multitasking between independent tasks.
-- **Millisecond Timer Support**: Integrated hardware timer drivers for VersatilePB and BeagleBone Black that generate periodic interrupts, serving as the fundamental timing mechanism for the scheduler's preemption.
-- **System Call Interface (ABI)**: Implements a secure gateway for user-space processes to interact with the kernel, supporting essential operations like process yielding, termination, and UART-based console output.
-- **Memory Protection Unit (MPU)**: Configures the Memory Management Unit (MMU) using an identity map to function as an MPU. It enforces hardware-level isolation between Kernel and User memory regions, preventing unauthorized access to critical system resources.
-- **Hardware Fault Isolation**: Includes a fault dispatcher that detects and handles various ARM exceptions, protecting system stability by terminating erroneous processes while keeping the kernel running.
+- **Timer Support**
+- **PCB Context Management**
+- **Round-Robin Scheduling**
+- **Kernel and User Separation**
+- **System Call Interface (ABI)**
+- **Memory Protection Unit (MMU configured as MPU)**
+- **Hardware Fault Isolation**
+
 
 ## How to Run?
 
