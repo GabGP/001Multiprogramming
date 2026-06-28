@@ -3,3 +3,6 @@
 *.elf
 *.bin
 disasm.txt
+
+# VS Code
+settings.json

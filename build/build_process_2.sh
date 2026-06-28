@@ -25,12 +25,10 @@ case "$TARGET" in
   versatilepb)
     CFLAGS="-mcpu=cortex-a8 -mfpu=neon -mfloat-abi=hard -Wall -nostdlib -nostartfiles -ffreestanding -DPLATFORM_VERSATILEPB"
     LDFLAGS="-T ../user/P2/linker.ld --defsym=P2_ADDR=0x00300000"
-    RUN_CMD="qemu-system-arm -M versatilepb -cpu cortex-a8 -nographic -kernel build/bin/process_2.elf"
     ;;
   beaglebone)
     CFLAGS="-mcpu=cortex-a8 -mfpu=neon -mfloat-abi=hard -DPLATFORM_BEAGLEBONE"
     LDFLAGS="-T ../user/P2/linker.ld --defsym=P2_ADDR=0x82300000"
-    RUN_CMD=""  # none, since we will run on real hardware
     ;;
   *)
     echo "Unknown target: $TARGET"
@@ -62,7 +60,7 @@ echo "  Converting ELF to binary..."
 $OBJCOPY -O binary bin/process_2.elf bin/process_2.bin
 
 if [ "$TARGET" = "versatilepb" ]; then
-  echo "  Build complete for VerstatilePB. Run with: $RUN_CMD"
+  echo "  Build complete for VerstatilePB (QEMU)."
 else
   echo "  Build complete for BeagleBone."
 fi

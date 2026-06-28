@@ -2,7 +2,7 @@
 
 #### By @23004004 - Carlos Alvarez and @GabGP - Gabriel Garcia
 
-This project implements a basic multiprogramming operating system capable of performing context switches between multiple processes using a Round-Robin scheduler. The system is designed to run on ARM-based architectures, specifically supporting **VersatilePB** - ARM926EJ-S and **BeagleBone Black** - ARM Cortex-A8 (AM335x).
+This project implements a basic multiprogramming operating system capable of performing context switches between multiple processes using a Round-Robin scheduler. The system is designed to run on ARM-based architectures, specifically supporting **VersatilePB (QEMU)** - ARM926EJ-S and **BeagleBone Black** - ARM Cortex-A8 (AM335x).
 
 ## Features
 
@@ -23,7 +23,11 @@ This project implements a basic multiprogramming operating system capable of per
 - `make qemu` VersatilePB - Qemu
 - `make qemu-debug` VersatilePB - Qemu with GDB
 
-**Note:** This program is meant to be ran on Linux and requires gcc-arm-none-aebi , optionally gdb-multiarch and qemu.
+**Note:** 
+
+- This program is meant to be ran on Linux and requires `gcc-arm-none-eabi 13.2.1`, optionally `gdb`/`gdb-multiarch` and `qemu-system-arm`.
+- Tested on Ubuntu and Fedora Linux.
+
 
 ### To run on BeagleBone Black
 
@@ -37,7 +41,7 @@ While connected to a terminal like CoolTerm via UART at 1152000 bauds, run:
 
 In another terminal:
 
-- run `gdb-multiarch build/bin/os.elf`
+- run `gdb`/`gdb-multiarch build/bin/os.elf`
 - `target remote localhost:3333`
 
 Helpful debugging options

@@ -61,6 +61,7 @@ $AS $AFLAGS -o bin/processes.o ../kernel/processes.s
 
 echo "  Compiling kernel..."
 $CC -c $CFLAGS -o bin/kernel.o ../kernel/kernel.c
+$CC -c $CFLAGS -o bin/process.o ../kernel/process.c
 $CC -c $CFLAGS -o bin/dispatcher.o ../kernel/dispatcher.c
 $CC -c $CFLAGS -o bin/scheduler.o ../kernel/scheduler/scheduler.c
 $CC -c $CFLAGS -o bin/queue.o ../kernel/scheduler/queue.c
@@ -82,6 +83,7 @@ $LD $LDFLAGS -o bin/os.elf \
     bin/root.o \
     bin/processes.o \
     bin/kernel.o \
+    bin/process.o \
     bin/dispatcher.o \
     bin/scheduler.o \
     bin/queue.o \
@@ -102,7 +104,7 @@ echo "  Cleaning up compilation files..."
 rm -f bin/*.o
 
 if [ "$TARGET" = "versatilepb" ]; then
-  echo "  Build complete for VerstatilePB."
+  echo "  Build complete for VerstatilePB (QEMU)."
   $RUN_CMD
 else
   echo "  Build complete for BeagleBone."

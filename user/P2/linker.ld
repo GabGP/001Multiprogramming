@@ -5,6 +5,12 @@ MEMORY
     ram : ORIGIN = P2_ADDR, LENGTH = 64K
 }
 
+PHDRS
+{
+    text PT_LOAD FLAGS(5); /* r-x */
+    data PT_LOAD FLAGS(6); /* rw- */
+}
+
 SECTIONS
 {
     . = ORIGIN(ram);
@@ -13,22 +19,22 @@ SECTIONS
     {
         *(.text*)
         *(.rodata*)
-    } > ram
+    } > ram :text
 
     .data : AT(ADDR(.text) + SIZEOF(.text))
     {
         __data_start__ = .;
         *(.data*)
         __data_end__ = .;
-    } > ram
+    } > ram :data
 
-    .bss :
+    .bss (NOLOAD) :
     {
         __bss_start__ = .;
         *(.bss*)
         *(COMMON)
         __bss_end__ = .;
-    } > ram
+    } > ram :data
 
     _stack_bottom = __bss_end__;
     _stack_top = ORIGIN(ram) + LENGTH(ram);
