@@ -81,7 +81,6 @@ typedef struct
 #define MAX_PROCESSES 8
 
 extern PCB pcb[MAX_PROCESSES];
-extern Queue ready_queue;
 
 void pcb_init(unsigned int pid);
 void setup_process_stack(unsigned int pid);

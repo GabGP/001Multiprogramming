@@ -11,9 +11,7 @@
 
 #define DEFAULT_QUANTUM 10
 
-extern Queue ready_queue;
 extern unsigned int current_process;
-extern unsigned int next_process;
 extern unsigned int quantum;
 
 void scheduler_init(void);

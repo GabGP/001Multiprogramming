@@ -5,7 +5,6 @@
 // ============================================================================
 
 unsigned int current_process = 0;
-unsigned int next_process = 0;
 unsigned int quantum = DEFAULT_QUANTUM;
 
 // Function to initialize the scheduler and ready queue

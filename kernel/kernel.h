@@ -14,8 +14,6 @@
 
 #define IRQ_TIME 100 // How often the IRQ fires (ms)
 
-extern unsigned int process_count;
-
 void kernel_init(void);
 extern void init_launch(void);
 
