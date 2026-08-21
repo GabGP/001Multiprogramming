@@ -41,8 +41,8 @@ void setup_process_stack(unsigned int pid)
     // Set LR to the process entry point
     pcb[pid].lr = MEM_ADDR + pid * 0x100000;
 
-    // Set the process SP to the address at the lowest word of this frame
-    pcb[pid].sp = stack_top - 14 * sizeof(unsigned int);
+    // Set the process SP directly to the stack top
+    pcb[pid].sp = stack_top;
 
     // Set the PC to the process entry point
     pcb[pid].pc = MEM_ADDR + pid * 0x100000;
