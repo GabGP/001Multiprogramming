@@ -1,7 +1,7 @@
 #ifndef TIMER_H
 #define TIMER_H
 
-#include "../lib/stdio.h"
+#include "stdio.h"
 
 // Macro to access memory-mapped registers
 #define REG(x) (*(volatile unsigned int * const)(x))

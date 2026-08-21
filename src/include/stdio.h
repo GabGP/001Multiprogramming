@@ -1,9 +1,9 @@
 #ifndef STDIO_H
 #define STDIO_H
  
-#include "../drivers/uart.h"
+#include "uart.h"
 #include "stdlib.h"
- 
+
 #include <stdarg.h> // For dynamic argument handling
  
 #define BUF_SIZE 256

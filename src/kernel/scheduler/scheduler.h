@@ -1,8 +1,8 @@
 #ifndef SCHEDULER_H
 #define SCHEDULER_H
 
-#include "../../lib/stdio.h"
-#include "../process.h"
+#include "stdio.h"
+#include "process.h"
 #include "queue.h"
 
 // ============================================================================

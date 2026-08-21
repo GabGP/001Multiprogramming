@@ -1,11 +1,11 @@
 #ifndef DISPATCHER_H
 #define DISPATCHER_H
 
-#include "../lib/stdio.h"
-#include "../lib/syscalls.h"
-#include "../drivers/timer.h"
-#include "../drivers/uart.h"
-#include "scheduler/scheduler.h"
+#include "stdio.h"
+#include "syscalls.h"
+#include "timer.h"
+#include "uart.h"
+#include "scheduler.h"
 
 // ============================================================================
 // Dispatcher Functions

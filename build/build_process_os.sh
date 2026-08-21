@@ -23,12 +23,12 @@ OBJCOPY="arm-none-eabi-objcopy"
 
 case "$TARGET" in
   versatilepb)
-    CFLAGS="-mcpu=cortex-a8 -mfpu=neon -mfloat-abi=hard -Wall -nostdlib -nostartfiles -ffreestanding -DPLATFORM_VERSATILEPB"
-    LDFLAGS="-T ../system/linker.ld --defsym=OS_ADDR=0x00100000"
+    CFLAGS="-mcpu=cortex-a8 -mfpu=neon -mfloat-abi=hard -Wall -nostdlib -nostartfiles -ffreestanding -DPLATFORM_VERSATILEPB -I../src/include"
+    LDFLAGS="-T ../src/user/os/linker.ld --defsym=OS_ADDR=0x00100000"
     ;;
   beaglebone)
-    CFLAGS="-mcpu=cortex-a8 -mfpu=neon -mfloat-abi=hard -Wall -nostdlib -nostartfiles -ffreestanding -DPLATFORM_BEAGLEBONE"
-    LDFLAGS="-T ../system/linker.ld --defsym=OS_ADDR=0x82100000"
+    CFLAGS="-mcpu=cortex-a8 -mfpu=neon -mfloat-abi=hard -Wall -nostdlib -nostartfiles -ffreestanding -DPLATFORM_BEAGLEBONE -I../src/include"
+    LDFLAGS="-T ../src/user/os/linker.ld --defsym=OS_ADDR=0x82100000"
     ;;
   *)
     echo "Unknown target: $TARGET"
@@ -41,10 +41,10 @@ echo "  Cleaning up previous build files..."
 rm -f obj/os_proc/*.o bin/process_os.elf bin/process_os.bin
 
 echo "  Assembling root.s..."
-$AS -o obj/os_proc/root.o ../system/root.s
+$AS -o obj/os_proc/root.o ../src/user/os/root.s
 
 echo "  Compiling process_os.c..."
-$CC -c $CFLAGS -o obj/os_proc/process_os.o ../system/process_os.c
+$CC -c $CFLAGS -o obj/os_proc/process_os.o ../src/user/os/process_os.c
 
 echo "  Linking object files..."
 $LD $LDFLAGS -o bin/process_os.elf obj/os_proc/root.o obj/os_proc/process_os.o

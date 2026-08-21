@@ -1,8 +1,8 @@
 #ifndef LOGS_H
 #define LOGS_H
 
-#include "../lib/stdio.h"
-#include "../kernel/scheduler/scheduler.h"
+#include "stdio.h"
+#include "scheduler.h"
 
 // ============================================================================
 // Debugging Functions

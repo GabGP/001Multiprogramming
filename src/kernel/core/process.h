@@ -1,7 +1,7 @@
 #ifndef PROCESS_H
 #define PROCESS_H
 
-#include "scheduler/queue.h"
+#include "queue.h"
 
 #ifdef PLATFORM_VERSATILEPB // ARM926EJ-S
 

@@ -18,11 +18,13 @@ AS="arm-none-eabi-as"
 LD="arm-none-eabi-ld"
 OBJCOPY="arm-none-eabi-objcopy"
 
+INCLUDES="-I../src/include -I../src/kernel/core -I../src/kernel/scheduler -I../src/drivers -I../src/debugger"
+
 case "$TARGET" in
   versatilepb)
     AFLAGS="-g"
-    CFLAGS="-g -O0 -mcpu=cortex-a8 -mfpu=neon -mfloat-abi=hard -Wall -nostdlib -nostartfiles -ffreestanding -DPLATFORM_VERSATILEPB"
-    LDFLAGS="-T ../kernel/linker.ld --defsym=MEM_ADDR=0x00000000 --defsym=OS_ADDR=0x00100000 --defsym=P1_ADDR=0x00200000 --defsym=P2_ADDR=0x00300000"
+    CFLAGS="-g -O0 -mcpu=cortex-a8 -mfpu=neon -mfloat-abi=hard -Wall -nostdlib -nostartfiles -ffreestanding -DPLATFORM_VERSATILEPB $INCLUDES"
+    LDFLAGS="-T ../src/kernel/boot/linker.ld --defsym=MEM_ADDR=0x00000000 --defsym=OS_ADDR=0x00100000 --defsym=P1_ADDR=0x00200000 --defsym=P2_ADDR=0x00300000"
     if [ "$DEBUG" = "1" ]; then
       RUN_CMD="qemu-system-arm -M versatilepb -cpu cortex-a8 -nographic -kernel bin/os.elf -S -gdb tcp::3333"
     else
@@ -31,8 +33,8 @@ case "$TARGET" in
     ;;
   beaglebone)
     AFLAGS=""
-    CFLAGS="-mcpu=cortex-a8 -mfpu=neon -mfloat-abi=hard -Wall -nostdlib -nostartfiles -ffreestanding -DPLATFORM_BEAGLEBONE"
-    LDFLAGS="-T ../kernel/linker.ld --defsym=MEM_ADDR=0x82000000 --defsym=OS_ADDR=0x82100000 --defsym=P1_ADDR=0x82200000 --defsym=P2_ADDR=0x82300000"
+    CFLAGS="-mcpu=cortex-a8 -mfpu=neon -mfloat-abi=hard -Wall -nostdlib -nostartfiles -ffreestanding -DPLATFORM_BEAGLEBONE $INCLUDES"
+    LDFLAGS="-T ../src/kernel/boot/linker.ld --defsym=MEM_ADDR=0x82000000 --defsym=OS_ADDR=0x82100000 --defsym=P1_ADDR=0x82200000 --defsym=P2_ADDR=0x82300000"
     RUN_CMD=""  # none, since we will run on real hardware
     ;;
   *)
@@ -54,30 +56,30 @@ echo ""
 echo "Building OS..."
 
 echo "  Assembling root.s..."
-$AS $AFLAGS -o obj/kernel/root.o ../kernel/root.s
+$AS $AFLAGS -o obj/kernel/root.o ../src/kernel/boot/root.s
 
 echo "  Assembling processes.s (embedding process binaries)..."
-$AS $AFLAGS -o obj/kernel/processes.o ../kernel/processes.s
+$AS $AFLAGS -o obj/kernel/processes.o ../src/kernel/boot/processes.s
 
 echo "  Compiling kernel..."
-$CC -c $CFLAGS -o obj/kernel/kernel.o ../kernel/kernel.c
-$CC -c $CFLAGS -o obj/kernel/process.o ../kernel/process.c
-$CC -c $CFLAGS -o obj/kernel/dispatcher.o ../kernel/dispatcher.c
-$CC -c $CFLAGS -o obj/kernel/mpu.o ../kernel/mpu.c
-$CC -c $CFLAGS -o obj/kernel/scheduler.o ../kernel/scheduler/scheduler.c
-$CC -c $CFLAGS -o obj/kernel/queue.o ../kernel/scheduler/queue.c
+$CC -c $CFLAGS -o obj/kernel/kernel.o ../src/kernel/core/kernel.c
+$CC -c $CFLAGS -o obj/kernel/process.o ../src/kernel/core/process.c
+$CC -c $CFLAGS -o obj/kernel/dispatcher.o ../src/kernel/core/dispatcher.c
+$CC -c $CFLAGS -o obj/kernel/mpu.o ../src/kernel/core/mpu.c
+$CC -c $CFLAGS -o obj/kernel/scheduler.o ../src/kernel/scheduler/scheduler.c
+$CC -c $CFLAGS -o obj/kernel/queue.o ../src/kernel/scheduler/queue.c
 
 echo "  Compiling drivers..."
-$CC -c $CFLAGS -o obj/kernel/intc.o ../drivers/intc.c
-$CC -c $CFLAGS -o obj/kernel/timer.o ../drivers/timer.c
-$CC -c $CFLAGS -o obj/kernel/uart.o ../drivers/uart.c
+$CC -c $CFLAGS -o obj/kernel/intc.o ../src/drivers/intc.c
+$CC -c $CFLAGS -o obj/kernel/timer.o ../src/drivers/timer.c
+$CC -c $CFLAGS -o obj/kernel/uart.o ../src/drivers/uart.c
 
 echo "  Compiling libraries..."
-$CC -c $CFLAGS -o obj/kernel/stdio.o ../lib/stdio.c
-$CC -c $CFLAGS -o obj/kernel/stdlib.o ../lib/stdlib.c
+$CC -c $CFLAGS -o obj/kernel/stdio.o ../src/lib/stdio.c
+$CC -c $CFLAGS -o obj/kernel/stdlib.o ../src/lib/stdlib.c
 
 echo "  Compiling debugger..."
-$CC -c $CFLAGS -o obj/kernel/logs.o ../debugger/logs.c
+$CC -c $CFLAGS -o obj/kernel/logs.o ../src/debugger/logs.c
 
 echo "  Linking object files..."
 $LD $LDFLAGS -o bin/os.elf \

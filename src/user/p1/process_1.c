@@ -1,4 +1,4 @@
-#include "../../lib/syscalls.h"
+#include "syscalls.h"
 
 #define EXPECTED_ERR_ARG  -2
 #define EXPECTED_ERR_PTR  -3

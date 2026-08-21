@@ -1,12 +1,12 @@
 #ifndef KERNEL_H
 #define KERNEL_H
 
-#include "../lib/stdio.h"
-#include "../drivers/intc.h"
-#include "../drivers/timer.h"
-#include "scheduler/scheduler.h"
+#include "stdio.h"
+#include "intc.h"
+#include "timer.h"
+#include "scheduler.h"
 #include "process.h"
-#include "./mpu.h"
+#include "mpu.h"
 
 // ============================================================================
 // Kernel Functions

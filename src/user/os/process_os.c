@@ -1,4 +1,4 @@
-#include "../lib/syscalls.h"
+#include "syscalls.h"
 
 // ============================================================================
 // OS Functions
