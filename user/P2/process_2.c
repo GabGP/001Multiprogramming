@@ -3,11 +3,11 @@
 
 #ifdef PLATFORM_VERSATILEPB // ARM926EJ-S
 
-    #define P2_ADDR 0x00200000
+    #define P2_ADDR 0x00300000
 
 #elif defined(PLATFORM_BEAGLEBONE) // ARM Cortex-A8 (AM335x)
     
-    #define P2_ADDR 0x82200000
+    #define P2_ADDR 0x82300000
 
 #endif
 
