@@ -43,18 +43,11 @@ rm -f bin/*.o bin/process_os.elf bin/process_os.bin
 echo "  Assembling root.s..."
 $AS -o bin/root.o ../system/root.s
 
-echo "  Compiling uart driver..."
-$CC -c $CFLAGS -o bin/uart.o ./../drivers/uart.c
-
-echo "  Compiling libraries..."
-$CC -c $CFLAGS -o bin/stdio.o ./../lib/stdio.c
-$CC -c $CFLAGS -o bin/stdlib.o ./../lib/stdlib.c
-
 echo "  Compiling process_os.c..."
 $CC -c $CFLAGS -o bin/process_os.o ../system/process_os.c
 
 echo "  Linking object files..."
-$LD $LDFLAGS -o bin/process_os.elf bin/root.o bin/uart.o bin/stdio.o bin/stdlib.o bin/process_os.o
+$LD $LDFLAGS -o bin/process_os.elf bin/root.o bin/process_os.o
 
 echo "  Converting ELF to binary..."
 $OBJCOPY -O binary bin/process_os.elf bin/process_os.bin

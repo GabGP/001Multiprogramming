@@ -1,4 +1,3 @@
-#include "../../lib/stdio.h"
 #include "../../lib/syscalls.h"
 
 #define EXPECTED_ERR_ARG  -2

@@ -1,4 +1,3 @@
-#include "../../lib/stdio.h"
 #include "../../lib/syscalls.h"
 
 #ifdef PLATFORM_VERSATILEPB // ARM926EJ-S
