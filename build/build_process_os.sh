@@ -7,7 +7,7 @@ set -e
 # Run from script directory so paths work from anywhere
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 cd "$SCRIPT_DIR"
-mkdir -p bin # Ensure bin directory exists for output files
+mkdir -p bin obj/os_proc # Ensure output and object directories exist
 
 echo
 echo "Building Process OS..."
@@ -27,7 +27,7 @@ case "$TARGET" in
     LDFLAGS="-T ../system/linker.ld --defsym=OS_ADDR=0x00100000"
     ;;
   beaglebone)
-    CFLAGS="-mcpu=cortex-a8 -mfpu=neon -mfloat-abi=hard -DPLATFORM_BEAGLEBONE"
+    CFLAGS="-mcpu=cortex-a8 -mfpu=neon -mfloat-abi=hard -Wall -nostdlib -nostartfiles -ffreestanding -DPLATFORM_BEAGLEBONE"
     LDFLAGS="-T ../system/linker.ld --defsym=OS_ADDR=0x82100000"
     ;;
   *)
@@ -38,16 +38,16 @@ esac
 
 # Remove previous compiled objects and binaries
 echo "  Cleaning up previous build files..."
-rm -f bin/*.o bin/process_os.elf bin/process_os.bin
+rm -f obj/os_proc/*.o bin/process_os.elf bin/process_os.bin
 
 echo "  Assembling root.s..."
-$AS -o bin/root.o ../system/root.s
+$AS -o obj/os_proc/root.o ../system/root.s
 
 echo "  Compiling process_os.c..."
-$CC -c $CFLAGS -o bin/process_os.o ../system/process_os.c
+$CC -c $CFLAGS -o obj/os_proc/process_os.o ../system/process_os.c
 
 echo "  Linking object files..."
-$LD $LDFLAGS -o bin/process_os.elf bin/root.o bin/process_os.o
+$LD $LDFLAGS -o bin/process_os.elf obj/os_proc/root.o obj/os_proc/process_os.o
 
 echo "  Converting ELF to binary..."
 $OBJCOPY -O binary bin/process_os.elf bin/process_os.bin

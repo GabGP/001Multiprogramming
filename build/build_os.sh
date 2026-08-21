@@ -7,7 +7,7 @@ set -e
 # Run from script directory so paths work from anywhere
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 cd "$SCRIPT_DIR"
-mkdir -p bin # Ensure bin directory exists for output files
+mkdir -p bin obj/kernel # Ensure output and object directories exist
 
 TARGET="${TARGET:-versatilepb}"   # default target
 echo "  Selected TARGET=${TARGET}"
@@ -31,7 +31,7 @@ case "$TARGET" in
     ;;
   beaglebone)
     AFLAGS=""
-    CFLAGS="-mcpu=cortex-a8 -mfpu=neon -mfloat-abi=hard -DPLATFORM_BEAGLEBONE"
+    CFLAGS="-mcpu=cortex-a8 -mfpu=neon -mfloat-abi=hard -Wall -nostdlib -nostartfiles -ffreestanding -DPLATFORM_BEAGLEBONE"
     LDFLAGS="-T ../kernel/linker.ld --defsym=MEM_ADDR=0x82000000 --defsym=OS_ADDR=0x82100000 --defsym=P1_ADDR=0x82200000 --defsym=P2_ADDR=0x82300000"
     RUN_CMD=""  # none, since we will run on real hardware
     ;;
@@ -43,7 +43,7 @@ esac
 
 # Remove previous compiled objects and binaries
 echo "  Cleaning up previous build files..."
-rm -f bin/*.o bin/os.elf bin/os.bin
+rm -f obj/kernel/*.o bin/os.elf bin/os.bin
 
 # Compile processes first so we can embed them in the OS
 TARGET=$TARGET ./build_process_1.sh
@@ -54,56 +54,53 @@ echo ""
 echo "Building OS..."
 
 echo "  Assembling root.s..."
-$AS $AFLAGS -o bin/root.o ../kernel/root.s
+$AS $AFLAGS -o obj/kernel/root.o ../kernel/root.s
 
 echo "  Assembling processes.s (embedding process binaries)..."
-$AS $AFLAGS -o bin/processes.o ../kernel/processes.s
+$AS $AFLAGS -o obj/kernel/processes.o ../kernel/processes.s
 
 echo "  Compiling kernel..."
-$CC -c $CFLAGS -o bin/kernel.o ../kernel/kernel.c
-$CC -c $CFLAGS -o bin/process.o ../kernel/process.c
-$CC -c $CFLAGS -o bin/dispatcher.o ../kernel/dispatcher.c
-$CC -c $CFLAGS -o bin/mpu.o ../kernel/mpu.c
-$CC -c $CFLAGS -o bin/scheduler.o ../kernel/scheduler/scheduler.c
-$CC -c $CFLAGS -o bin/queue.o ../kernel/scheduler/queue.c
+$CC -c $CFLAGS -o obj/kernel/kernel.o ../kernel/kernel.c
+$CC -c $CFLAGS -o obj/kernel/process.o ../kernel/process.c
+$CC -c $CFLAGS -o obj/kernel/dispatcher.o ../kernel/dispatcher.c
+$CC -c $CFLAGS -o obj/kernel/mpu.o ../kernel/mpu.c
+$CC -c $CFLAGS -o obj/kernel/scheduler.o ../kernel/scheduler/scheduler.c
+$CC -c $CFLAGS -o obj/kernel/queue.o ../kernel/scheduler/queue.c
 
 echo "  Compiling drivers..."
-$CC -c $CFLAGS -o bin/intc.o ../drivers/intc.c
-$CC -c $CFLAGS -o bin/timer.o ../drivers/timer.c
-$CC -c $CFLAGS -o bin/uart.o ../drivers/uart.c
+$CC -c $CFLAGS -o obj/kernel/intc.o ../drivers/intc.c
+$CC -c $CFLAGS -o obj/kernel/timer.o ../drivers/timer.c
+$CC -c $CFLAGS -o obj/kernel/uart.o ../drivers/uart.c
 
 echo "  Compiling libraries..."
-$CC -c $CFLAGS -o bin/stdio.o ../lib/stdio.c
-$CC -c $CFLAGS -o bin/stdlib.o ../lib/stdlib.c
+$CC -c $CFLAGS -o obj/kernel/stdio.o ../lib/stdio.c
+$CC -c $CFLAGS -o obj/kernel/stdlib.o ../lib/stdlib.c
 
 echo "  Compiling debugger..."
-$CC -c $CFLAGS -o bin/logs.o ../debugger/logs.c
+$CC -c $CFLAGS -o obj/kernel/logs.o ../debugger/logs.c
 
 echo "  Linking object files..."
 $LD $LDFLAGS -o bin/os.elf \
-    bin/root.o \
-    bin/processes.o \
-    bin/kernel.o \
-    bin/process.o \
-    bin/dispatcher.o \
-    bin/mpu.o \
-    bin/scheduler.o \
-    bin/queue.o \
-    bin/intc.o \
-    bin/timer.o \
-    bin/uart.o \
-    bin/stdio.o \
-    bin/stdlib.o \
-    bin/logs.o
+    obj/kernel/root.o \
+    obj/kernel/processes.o \
+    obj/kernel/kernel.o \
+    obj/kernel/process.o \
+    obj/kernel/dispatcher.o \
+    obj/kernel/mpu.o \
+    obj/kernel/scheduler.o \
+    obj/kernel/queue.o \
+    obj/kernel/intc.o \
+    obj/kernel/timer.o \
+    obj/kernel/uart.o \
+    obj/kernel/stdio.o \
+    obj/kernel/stdlib.o \
+    obj/kernel/logs.o
 
 echo "  Converting ELF to binary..."
 $OBJCOPY -O binary bin/os.elf bin/os.bin
 
 echo "  Disassembling for debugging..."
 arm-none-eabi-objdump -d bin/os.elf > bin/disasm.txt
-
-echo "  Cleaning up compilation files..."
-rm -f bin/*.o
 
 if [ "$TARGET" = "versatilepb" ]; then
   echo "  Build complete for VerstatilePB (QEMU)."

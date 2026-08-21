@@ -17,4 +17,8 @@ qemu-debug:
 	@echo "\n Building project for QEMU (DEBUG)..."
 	TARGET=versatilepb DEBUG=1 $(BUILD_SH)
 
-.PHONY: qemu bbb qemu-debug
+clean:
+	@echo "\n Cleaning build artifacts..."
+	rm -rf build/bin build/obj
+
+.PHONY: qemu bbb qemu-debug clean
