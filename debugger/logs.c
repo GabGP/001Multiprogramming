@@ -4,6 +4,8 @@
 // Debugging Functions
 // ============================================================================
 
+unsigned int temp_regs[NUM_REGISTERS];
+
 // Function to log the current pcb information
 void log_pcb(void)
 {

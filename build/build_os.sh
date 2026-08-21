@@ -63,6 +63,7 @@ echo "  Compiling kernel..."
 $CC -c $CFLAGS -o bin/kernel.o ../kernel/kernel.c
 $CC -c $CFLAGS -o bin/process.o ../kernel/process.c
 $CC -c $CFLAGS -o bin/dispatcher.o ../kernel/dispatcher.c
+$CC -c $CFLAGS -o bin/mpu.o ../kernel/mpu.c
 $CC -c $CFLAGS -o bin/scheduler.o ../kernel/scheduler/scheduler.c
 $CC -c $CFLAGS -o bin/queue.o ../kernel/scheduler/queue.c
 
@@ -85,6 +86,7 @@ $LD $LDFLAGS -o bin/os.elf \
     bin/kernel.o \
     bin/process.o \
     bin/dispatcher.o \
+    bin/mpu.o \
     bin/scheduler.o \
     bin/queue.o \
     bin/intc.o \

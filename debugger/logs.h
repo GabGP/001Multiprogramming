@@ -9,7 +9,7 @@
 // ============================================================================
 
 #define NUM_REGISTERS 18
-unsigned int temp_regs[NUM_REGISTERS];
+extern unsigned int temp_regs[NUM_REGISTERS];
 
 void log_pcb(void);
 void log_registers(void);
