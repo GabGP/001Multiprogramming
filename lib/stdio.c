@@ -18,6 +18,11 @@ void PRINT(const char *fmt, ...)
         if (*fmt == '%')
         {
             fmt++;
+            if (*fmt == '\0')
+            {
+                uart_putc('%');
+                break;
+            }
             switch (*fmt)
             {
             case 'd':
@@ -44,6 +49,11 @@ void PRINT(const char *fmt, ...)
                 int val = va_arg(args, int);
                 itox(val, buf);
                 uart_puts(buf);
+                break;
+            }
+            case '%':
+            {
+                uart_putc('%');
                 break;
             }
             default:
