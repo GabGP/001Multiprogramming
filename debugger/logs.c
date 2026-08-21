@@ -50,7 +50,7 @@ void log_registers(void)
         "str r1, [%0, #68] \n" // Save CPSR
         :
         : "r"(temp_regs)
-        : "memory");
+        : "r0", "r1", "memory");
 
     PRINT("\n=== Current Registers ===\n");
 
