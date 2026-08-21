@@ -27,6 +27,7 @@ int atoi(const char *s) {
 void itoa(int num, char *buffer) {
     int i = 0;
     int is_negative = 0;
+    unsigned int u_num;
 
     if (num == 0) {
         buffer[i++] = '0';
@@ -36,12 +37,14 @@ void itoa(int num, char *buffer) {
 
     if (num < 0) {
         is_negative = 1;
-        num = -num;
+        u_num = (unsigned int)(-(unsigned int)num);
+    } else {
+        u_num = (unsigned int)num;
     }
 
-    while (num > 0 && i < 14) { // Reserve space for sign and null terminator
-        buffer[i++] = '0' + (num % 10);
-        num /= 10;
+    while (u_num > 0 && i < 14) { // Reserve space for sign and null terminator
+        buffer[i++] = '0' + (u_num % 10);
+        u_num /= 10;
     }
 
     if (is_negative) {
