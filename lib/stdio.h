@@ -6,7 +6,6 @@
  
 #include <stdarg.h> // For dynamic argument handling
  
-#define FLOAT_SCALE 100
 #define BUF_SIZE 256
  
 // ============================================================================
