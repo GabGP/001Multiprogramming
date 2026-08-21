@@ -154,29 +154,29 @@ vector_table:
 reset_handler:
     // Set stack pointer for FIQs
     msr CPSR, #0xD1 @ FIQ mode (0b10001) + IRQ/FIQ disabled
-    ldr sp, =_stack_top
+    ldr sp, =_fiq_stack_top
 
     // Set stack pointer for IRQs
     msr CPSR, #0xD2 @ IRQ mode (0b10010) + IRQ/FIQ disabled
-    ldr sp, =_stack_top
+    ldr sp, =_irq_stack_top
 
     // Set stack pointer for ABT mode
     msr CPSR, #0xD7 @ ABT mode (0b10111) + IRQ/FIQ disabled
-    ldr sp, =_stack_top
+    ldr sp, =_abt_stack_top
 
     // Set stack pointer for UND mode
     msr CPSR, #0xDB @ UND mode (0b11011) + IRQ/FIQ disabled
-    ldr sp, =_stack_top
+    ldr sp, =_und_stack_top
 
     // Set stack pointer for SYS mode
     msr CPSR, #0xDF @ SYS mode (0b11111) + IRQ/FIQ disabled
-    ldr sp, =_stack_top
+    ldr sp, =_sys_stack_top
 
     // Set CPU to SVC mode
     msr CPSR, #0xD3 @ SVC mode (0b10011) + IRQ/FIQ disabled
 
     // Set the initial stack pointer for the kernel
-    ldr sp, =_stack_top
+    ldr sp, =_svc_stack_top
 
     // Clear the .bss section
     ldr r0, =__bss_start__
@@ -272,9 +272,20 @@ fiq_handler:
     bl log_pcb
     b hang
 
-// Reserve a contiguous region for the process stack
+// Reserve contiguous 8KB region partitioned across processor mode stacks
 .section .bss
 .align 4            @ Align to 16 bits (2^4)
 _stack_bottom:
-    .skip 0x2000    @ 8KB stack space
+    .skip 0x200     @ 512B FIQ stack space
+_fiq_stack_top:
+    .skip 0x400     @ 1KB IRQ stack space
+_irq_stack_top:
+    .skip 0x200     @ 512B ABT stack space
+_abt_stack_top:
+    .skip 0x200     @ 512B UND stack space
+_und_stack_top:
+    .skip 0x200     @ 512B SYS stack space
+_sys_stack_top:
+    .skip 0x1400    @ 5KB SVC stack space (kernel main stack)
+_svc_stack_top:
 _stack_top:
